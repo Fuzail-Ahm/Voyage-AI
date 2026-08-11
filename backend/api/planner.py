@@ -17,20 +17,32 @@ def plan_trip(request: TripRequest):
         "travelers": 0,
         "budget": 0,
 
+        "check_in": "",
+        "check_out": "",
+
         "travel_style": "",
         "interests": [],
+        "clarification_question": "",
 
         "food_preferences": "",
         "flight_class": "",
         "special_requests": "",
 
+        "missing_information": [],
+
         "hotels": [],
+        "hotel_recommendations": [],
+        "hotel_alternatives": [],
+        "hotel_message": "",
+        
         "restaurants": [],
+        "budget_breakdown": {},
 
         "weather": {},
         "itinerary": [],
 
         "pdf_path": ""
+        
     }
 
     result = graph.invoke(initial_state)
