@@ -14,7 +14,9 @@ class SerpApiClient:
         self.api_key = os.getenv("SERPAPI_API_KEY")
 
         if not self.api_key:
-            raise ValueError("SERPAPI_API_KEY is not configured")
+            raise ValueError(
+                "SERPAPI_API_KEY is not configured"
+            )
 
     def search_hotels(
         self,
@@ -33,6 +35,30 @@ class SerpApiClient:
             "currency": "INR",
             "gl": "in",
             "hl": "en",
+            "api_key": self.api_key,
+        }
+
+        response = requests.get(
+            self.BASE_URL,
+            params=params,
+            timeout=30,
+        )
+
+        response.raise_for_status()
+
+        return response.json()
+
+    def search_places(
+        self,
+        query: str,
+    ):
+
+        params = {
+            "engine": "google_maps",
+            "q": query,
+            "type": "search",
+            "hl": "en",
+            "gl": "in",
             "api_key": self.api_key,
         }
 

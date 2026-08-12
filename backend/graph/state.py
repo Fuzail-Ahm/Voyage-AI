@@ -30,10 +30,16 @@ class TripState(TypedDict):
     hotel_recommendations: list
     hotel_alternatives: list
     hotel_message: str
-    
+
+    restaurant_recommendations: list
+    restaurant_alternatives: list
+    restaurant_message: str
+
     restaurants: list
     weather: dict
+    weather_summary: str
     itinerary: list
+    itinerary_summary: str
 
     pdf_path: str
 

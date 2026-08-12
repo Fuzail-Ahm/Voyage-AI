@@ -34,8 +34,18 @@ def plan_trip(request: TripRequest):
         "hotel_recommendations": [],
         "hotel_alternatives": [],
         "hotel_message": "",
-        
+
         "restaurants": [],
+        "restaurant_recommendations": [],
+        "restaurant_alternatives": [],
+        "restaurant_message": "",
+
+        "weather": {},
+        "weather_summary": "",
+        "itinerary": [],
+        "itinerary_summary": "",
+
+
         "budget_breakdown": {},
 
         "weather": {},

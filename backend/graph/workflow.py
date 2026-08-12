@@ -5,6 +5,9 @@ from agents.validator import validate_trip
 from agents.clarification import clarification_node
 from agents.budget import budget_node
 from agents.hotel import hotel_node
+from agents.restaurant import restaurant_node
+from agents.weather import weather_node
+from agents.itinerary import itinerary_node
 
 from graph.router import route_after_validation
 from graph.state import TripState
@@ -12,22 +15,22 @@ from graph.state import TripState
 
 builder = StateGraph(TripState)
 
-# Nodes
+
 builder.add_node("planner", planner_node)
 builder.add_node("validator", validate_trip)
 builder.add_node("clarification", clarification_node)
 builder.add_node("budget", budget_node)
 builder.add_node("hotel", hotel_node)
+builder.add_node("restaurant", restaurant_node)
+builder.add_node("weather", weather_node)
+builder.add_node("itinerary", itinerary_node)
 
 
-# START → Planner
 builder.add_edge(START, "planner")
 
-# Planner → Validator
 builder.add_edge("planner", "validator")
 
 
-# Validator → Clarification OR Budget
 builder.add_conditional_edges(
     "validator",
     route_after_validation,
@@ -38,15 +41,17 @@ builder.add_conditional_edges(
 )
 
 
-# Budget → Hotel
 builder.add_edge("budget", "hotel")
 
-# Hotel → END
-builder.add_edge("hotel", END)
+builder.add_edge("hotel", "restaurant")
 
-# Clarification → END
+builder.add_edge("restaurant", "weather")
+
+builder.add_edge("weather", "itinerary")
+
+builder.add_edge("itinerary", END)
+
 builder.add_edge("clarification", END)
 
 
-# Compile the graph
 graph = builder.compile()
