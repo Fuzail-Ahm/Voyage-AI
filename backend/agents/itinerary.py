@@ -1,7 +1,63 @@
 import json
 
 from graph.state import TripState
-from services.llm import generate_review
+from services.llm import generate_json
+
+
+ITINERARY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "summary": {
+            "type": "string"
+        },
+        "days": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "day": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "morning": {
+                        "type": "string"
+                    },
+                    "afternoon": {
+                        "type": "string"
+                    },
+                    "evening": {
+                        "type": "string"
+                    },
+                    "dining": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "day",
+                    "date",
+                    "title",
+                    "morning",
+                    "afternoon",
+                    "evening",
+                    "dining",
+                    "notes"
+                ]
+            }
+        }
+    },
+    "required": [
+        "summary",
+        "days"
+    ]
+}
 
 
 ITINERARY_PROMPT = """
@@ -14,7 +70,7 @@ IMPORTANT RULES:
 
 1. Do not invent hotels or restaurants that are not provided.
 2. Use the selected hotel as the accommodation base.
-3. Consider travel time and geographic practicality.
+3. Consider geographic practicality.
 4. Do not schedule too many activities in one day.
 5. Include relaxation time for luxury travelers.
 6. Use weather information when available.
@@ -22,47 +78,16 @@ IMPORTANT RULES:
 8. Respect food preferences and special requests.
 9. Stay within the user's budget.
 10. Make the itinerary feel premium and personalized.
-11. Return ONLY valid JSON.
 
-The itinerary should contain exactly one object per trip day.
-
-Each day should contain:
-
-{
-    "day": 1,
-    "date": "YYYY-MM-DD",
-    "title": "",
-    "morning": "",
-    "afternoon": "",
-    "evening": "",
-    "dining": "",
-    "notes": ""
-}
-
-Return:
-
-{
-    "summary": "",
-    "days": [
-        {
-            "day": 1,
-            "date": "",
-            "title": "",
-            "morning": "",
-            "afternoon": "",
-            "evening": "",
-            "dining": "",
-            "notes": ""
-        }
-    ]
-}
-
-TRIP INFORMATION:
+Return exactly one itinerary object for each trip day.
 """
+
 
 def itinerary_node(state: TripState) -> TripState:
 
     prompt = ITINERARY_PROMPT + f"""
+
+TRIP INFORMATION
 
 Destination:
 {state["destination"]}
@@ -107,27 +132,12 @@ Weather summary:
 {state["weather_summary"]}
 """
 
-    response = generate_review(prompt)
+    response = generate_json(
+        prompt,
+        ITINERARY_SCHEMA
+    )
 
-    text = response.strip()
-
-    # Handle accidental markdown code fences.
-    if text.startswith("```"):
-        text = text.replace("```json", "")
-        text = text.replace("```", "")
-        text = text.strip()
-
-    try:
-        data = json.loads(text)
-
-    except json.JSONDecodeError:
-
-        state["itinerary"] = []
-        state["itinerary_summary"] = (
-            "The itinerary could not be generated."
-        )
-
-        return state
+    data = json.loads(response)
 
     state["itinerary"] = data.get("days", [])
 

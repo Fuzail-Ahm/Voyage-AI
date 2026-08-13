@@ -79,7 +79,7 @@ Return ONLY this JSON:
 def planner_node(state: TripState):
 
     response = client.models.generate_content(
-        model="gemini-3.5-flash",
+        model="gemini-3.1-flash-lite",
         contents=[
             SYSTEM_PROMPT,
             state["user_prompt"]
