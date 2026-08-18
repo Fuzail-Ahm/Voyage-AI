@@ -3,12 +3,14 @@ import json
 from graph.state import TripState
 from services.llm import client
 
+
 SYSTEM_PROMPT = """
 You are an expert luxury travel concierge.
 
 Extract structured travel information from the user's request.
 
 IMPORTANT:
+
 - Never invent missing information.
 - If travel dates are not provided, return empty strings for check_in and check_out.
 - If only a duration is provided but no dates, leave check_in and check_out empty.
@@ -61,39 +63,103 @@ wheelchair assistance, senior citizens, etc.
 Return ONLY this JSON:
 
 {
-  "destination": "",
-  "days": 0,
-  "travelers": 0,
-  "budget": 0,
-  "check_in": "",
-  "check_out": "",
-  "travel_style": "",
-  "interests": [],
-  "food_preferences": "",
-  "flight_class": "",
-  "special_requests": ""
+    "destination": "",
+    "days": 0,
+    "travelers": 0,
+    "budget": 0,
+    "check_in": "",
+    "check_out": "",
+    "travel_style": "",
+    "interests": [],
+    "food_preferences": "",
+    "flight_class": "",
+    "special_requests": ""
 }
 """
 
 
 def planner_node(state: TripState):
 
+    # --------------------------------------------------------
+    # Preserve values explicitly supplied by the frontend
+    # --------------------------------------------------------
+
+    original = dict(state)
+
     response = client.models.generate_content(
-        model="gemini-3.1-flash-lite",
+        model="gemini-3.5-flash",
         contents=[
             SYSTEM_PROMPT,
-            state["user_prompt"]
-        ]
+            state.get("user_prompt", ""),
+        ],
     )
 
     text = (
-        response.text.replace("```json", "")
+        response.text
+        .replace("```json", "")
         .replace("```", "")
         .strip()
     )
 
     data = json.loads(text)
 
+    # --------------------------------------------------------
+    # Update the state with LLM-extracted information
+    # --------------------------------------------------------
+
     state.update(data)
+
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # Explicit frontend values always take priority over
+    # values extracted by the LLM.
+    # --------------------------------------------------------
+
+    protected_fields = [
+        "destination",
+        "days",
+        "travelers",
+        "budget",
+        "check_in",
+        "check_out",
+        "travel_style",
+        "interests",
+        "food_preferences",
+        "flight_class",
+        "special_requests",
+    ]
+
+    for field in protected_fields:
+
+        original_value = original.get(field)
+
+        # Don't overwrite a real value supplied by the user
+        # with an empty/default LLM value.
+        if original_value not in (
+            None,
+            "",
+            0,
+            [],
+        ):
+            state[field] = original_value
+
+    # --------------------------------------------------------
+    # Ensure required fields exist
+    # --------------------------------------------------------
+
+    state.setdefault("destination", "")
+    state.setdefault("days", 0)
+    state.setdefault("travelers", 0)
+    state.setdefault("budget", 0)
+
+    state.setdefault("check_in", "")
+    state.setdefault("check_out", "")
+
+    state.setdefault("travel_style", "")
+    state.setdefault("interests", [])
+
+    state.setdefault("food_preferences", "")
+    state.setdefault("flight_class", "")
+    state.setdefault("special_requests", "")
 
     return state

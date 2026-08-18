@@ -11,11 +11,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(
-    planner_router,
-    prefix="/planner",
-    tags=["Planner"]
-)
+app.include_router(planner_router)
 
 @app.get("/")
 def home():

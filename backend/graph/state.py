@@ -42,4 +42,4 @@ class TripState(TypedDict):
     itinerary_summary: str
 
     pdf_path: str
-
+    destination_image: str

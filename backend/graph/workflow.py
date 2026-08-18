@@ -11,6 +11,7 @@ from agents.itinerary import itinerary_node
 
 from graph.router import route_after_validation
 from graph.state import TripState
+from agents.pdf import pdf_node
 
 
 builder = StateGraph(TripState)
@@ -24,6 +25,7 @@ builder.add_node("hotel", hotel_node)
 builder.add_node("restaurant", restaurant_node)
 builder.add_node("weather", weather_node)
 builder.add_node("itinerary", itinerary_node)
+builder.add_node("pdf", pdf_node)
 
 
 builder.add_edge(START, "planner")
@@ -48,8 +50,8 @@ builder.add_edge("hotel", "restaurant")
 builder.add_edge("restaurant", "weather")
 
 builder.add_edge("weather", "itinerary")
-
-builder.add_edge("itinerary", END)
+builder.add_edge("itinerary", "pdf")
+builder.add_edge("pdf", END)
 
 builder.add_edge("clarification", END)
 
