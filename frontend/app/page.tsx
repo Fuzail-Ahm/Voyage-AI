@@ -47,6 +47,7 @@ type Hotel = {
 
 type Restaurant = {
   name?: string;
+  type?: string;
   rating?: number;
   reviews?: number;
   address?: string;
@@ -65,6 +66,11 @@ type ItineraryDay = {
   title?: string;
   activities?: string[];
   description?: string;
+  morning?: string;
+  afternoon?: string;
+  evening?: string;
+  dining?: string;
+  notes?: string;
 };
 
 type WeatherDay = {
@@ -1833,15 +1839,20 @@ ${
           {trip.itinerary && trip.itinerary.length > 0 && (
             <Reveal delay={100}>
               <section className="relative mt-24">
+
                 <div className="max-w-3xl">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-[#927a5a]">
                     The journey
                   </p>
+
                   <h2 className="mt-4 text-4xl font-semibold tracking-[-0.03em] md:text-6xl">
                     Every day,
                     <br />
-                    <span className="text-gray-400">thoughtfully planned.</span>
+                    <span className="text-gray-400">
+                      thoughtfully planned.
+                    </span>
                   </h2>
+
                   <p className="mt-5 max-w-2xl text-base leading-7 text-gray-500">
                     A day-by-day experience shaped around your destination, preferences and travel style.
                   </p>
@@ -1851,56 +1862,138 @@ ${
                   <div className="absolute bottom-0 left-[23px] top-0 hidden w-px bg-gradient-to-b from-[#927a5a]/50 via-black/10 to-transparent md:block" />
 
                   <div className="space-y-8">
-                    {trip.itinerary.map((day, index) => (
-                      <Reveal key={index} delay={index * 80}>
-                        <article className="group relative md:pl-20">
-                          <div className="absolute left-0 top-0 hidden h-12 w-12 items-center justify-center rounded-full border border-[#927a5a]/30 bg-white text-sm font-semibold shadow-sm md:flex">
-                            <span className="text-[#927a5a]">
-                              {String(day.day || index + 1).padStart(2, "0")}
-                            </span>
-                          </div>
+                    {trip.itinerary.map((day, index) => {
 
-                          <div className="relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white p-7 shadow-[0_15px_60px_rgba(0,0,0,0.045)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_25px_80px_rgba(0,0,0,0.09)] md:p-9">
-                            <div className="flex items-center justify-between gap-4">
-                              <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-[#927a5a]">
-                                Day {day.day || index + 1}
-                              </p>
-                              <span className="text-xs text-gray-300">
-                                {String(index + 1).padStart(2, "0")}
+                      const activities = Array.isArray(day.activities)
+                        ? day.activities
+                            .filter(
+                              (activity) =>
+                                activity !== null &&
+                                activity !== undefined &&
+                                String(activity).trim()
+                            )
+                            .map((activity) => ({
+                              label: "Activity",
+                              value: String(activity),
+                            }))
+                        : [];
+
+                      const structuredActivities = [
+                        { label: "Morning", value: day.morning },
+                        { label: "Afternoon", value: day.afternoon },
+                        { label: "Evening", value: day.evening },
+                        { label: "Dining", value: day.dining },
+                        { label: "Notes", value: day.notes },
+                      ].filter(
+                        (item) =>
+                          item.value !== null &&
+                          item.value !== undefined &&
+                          String(item.value).trim()
+                      );
+
+                      const dayActivities =
+                        activities.length > 0
+                          ? activities
+                          : structuredActivities;
+
+                      return (
+                        <Reveal
+                          key={`itinerary-day-${index}`}
+                          delay={index * 80}
+                        >
+                          <article className="group relative md:pl-20">
+
+                            {/* DAY MARKER */}
+                            <div className="absolute left-0 top-0 hidden h-12 w-12 items-center justify-center rounded-full border border-[#927a5a]/30 bg-white text-sm font-semibold shadow-sm md:flex">
+                              <span className="text-[#927a5a]">
+                                {String(day.day || index + 1).padStart(2, "0")}
                               </span>
                             </div>
 
-                            <h3 className="mt-4 max-w-3xl text-2xl font-semibold tracking-tight md:text-3xl">
-                              {day.title || `Day ${index + 1}`}
-                            </h3>
+                            {/* DAY CARD */}
+                            <div className="relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white shadow-[0_15px_60px_rgba(0,0,0,0.045)] transition-all duration-700 hover:-translate-y-1 hover:shadow-[0_30px_90px_rgba(0,0,0,0.10)]">
 
-                            {day.description && (
-                              <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-500 md:text-base">
-                                {day.description}
-                              </p>
-                            )}
+                              <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#f7f3ea] to-transparent opacity-80" />
 
-                            {day.activities && day.activities.length > 0 && (
-                              <div className="mt-7 grid gap-3 md:grid-cols-2">
-                                {day.activities.map((activity, activityIndex) => (
-                                  <div key={activityIndex} className="flex items-start gap-3 rounded-2xl border border-black/[0.06] bg-[#faf9f7] p-4 transition-colors duration-300 group-hover:bg-[#f6f3ed]">
-                                    <span className="mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#171717] text-[9px] text-[#d4b27b]">
-                                      ✓
+                              {/* HEADER */}
+                              <div className="relative p-7 md:p-9">
+                                <div className="flex items-center justify-between gap-4">
+                                  <div className="flex items-center gap-3">
+                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#171717] text-[10px] font-semibold text-[#d4b27b] md:hidden">
+                                      {String(day.day || index + 1).padStart(2, "0")}
                                     </span>
-                                    <span className="text-sm leading-6 text-gray-600">{activity}</span>
+
+                                    <p className="text-[9px] font-semibold uppercase tracking-[0.3em] text-[#927a5a]">
+                                      Day {day.day || index + 1}
+                                    </p>
                                   </div>
-                                ))}
+
+                                  <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-300">
+                                    {String(index + 1).padStart(2, "0")} / {String(trip.itinerary.length).padStart(2, "0")}
+                                  </span>
+                                </div>
+
+                                <h3 className="mt-5 max-w-4xl text-3xl font-semibold tracking-tight text-gray-900 md:text-4xl">
+                                  {day.title || `Day ${index + 1}`}
+                                </h3>
+
+                                {day.description && (
+                                  <p className="mt-4 max-w-3xl text-sm leading-7 text-gray-500 md:text-base">
+                                    {day.description}
+                                  </p>
+                                )}
                               </div>
-                            )}
-                          </div>
-                        </article>
-                      </Reveal>
-                    ))}
+
+                              {/* DAILY EXPERIENCE TIMELINE */}
+                              <div className="border-t border-black/[0.06] px-7 py-7 md:px-9 md:py-9">
+
+                                {dayActivities.length > 0 ? (
+                                  <div className="relative">
+                                    <div className="absolute bottom-4 left-3 top-4 hidden w-px bg-gradient-to-b from-[#927a5a]/40 via-black/10 to-transparent md:block" />
+
+                                    <div className="space-y-4">
+                                      {dayActivities.map((activity, activityIndex) => (
+                                        <div
+                                          key={`${index}-${activityIndex}`}
+                                          className="group/activity relative flex gap-4 rounded-[1.25rem] border border-black/[0.06] bg-[#faf9f7] p-4 transition-all duration-500 hover:-translate-y-0.5 hover:border-[#927a5a]/20 hover:bg-[#f7f4ee] md:pl-5"
+                                        >
+                                          <div className="relative z-10 mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#927a5a]/20 bg-white shadow-sm">
+                                            <span className="h-1.5 w-1.5 rounded-full bg-[#927a5a] transition-transform duration-300 group-hover/activity:scale-150" />
+                                          </div>
+
+                                          <div className="min-w-0">
+                                            <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#927a5a]">
+                                              {activity.label}
+                                            </p>
+
+                                            <p className="mt-1 text-sm leading-6 text-gray-600 md:text-[15px]">
+                                              {activity.value}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="rounded-2xl border border-black/[0.05] bg-[#faf9f7] p-5">
+                                    <p className="text-sm leading-6 text-gray-400">
+                                      No specific activities were generated for this day.
+                                    </p>
+                                  </div>
+                                )}
+
+                              </div>
+                            </div>
+                          </article>
+                        </Reveal>
+                      );
+                    })}
                   </div>
                 </div>
               </section>
             </Reveal>
           )}
+
           {/* =================================================
     INTERACTIVE TRAVEL MAP
 ================================================= */}
@@ -1932,8 +2025,14 @@ ${
           destination={
             trip.destination || "Your destination"
           }
-         latitude={undefined}
-        longitude={undefined}
+          latitude={
+            normalizedWeather?.latitude ??
+            weatherFallback?.latitude
+          }
+          longitude={
+            normalizedWeather?.longitude ??
+            weatherFallback?.longitude
+          }
           hotels={hotels.map((hotel) => ({
             name:
               hotel.name || "Recommended hotel",
@@ -1959,12 +2058,16 @@ ${
         />
       </div>
     </section>
-    <TripCopilot
-  trip={trip}
-  onTripUpdate={setTrip}
-/>
   </Reveal>
 )}
+
+
+          <Reveal delay={140}>
+            <TripCopilot
+              trip={trip}
+              onTripUpdate={setTrip}
+            />
+          </Reveal>
 
           {/* =================================================
     HOTELS — PREMIUM VOYAGEAI SELECTION
@@ -2109,7 +2212,6 @@ ${
 
               {/* IMAGE OVERLAY */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
-              <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-[1400ms] group-hover:translate-x-full" />
 
               {/* TOP BADGE */}
               <div className="absolute left-5 top-5">
@@ -2392,256 +2494,173 @@ ${
             delay={index * 120}
             className="h-full"
           >
-           <article
-  className="group relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white shadow-[0_20px_70px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:border-black/[0.12] hover:shadow-[0_35px_100px_rgba(0,0,0,0.12)]"
->
-  {/* =========================================================
-      IMAGE
-  ========================================================= */}
-
-  <div className="relative h-[330px] overflow-hidden bg-[#e9e7e1]">
-
-    {image ? (
-      <img
-        src={image}
-        alt={
-          restaurant.name ||
-          "Recommended restaurant"
-        }
-        loading="lazy"
-        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
-        onError={(event) => {
-          event.currentTarget.style.display =
-            "none";
-        }}
-      />
-    ) : (
-      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#ded9ce] via-[#c7bca9] to-[#927a5a]">
-        <div className="text-7xl opacity-80">
-          🍽️
-        </div>
-      </div>
-    )}
-
-    {/* CINEMATIC OVERLAY */}
-
-    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
-
-    {/* HOVER LIGHT SWEEP */}
-
-    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-[1400ms] group-hover:translate-x-full" />
-
-    {/* BADGE */}
-
-    <div className="absolute left-5 top-5">
-
-      <span className="rounded-full border border-white/20 bg-black/35 px-3.5 py-2 text-[9px] font-semibold tracking-[0.22em] text-white backdrop-blur-xl">
-        {badge}
-      </span>
-
-    </div>
-
-    {/* RATING */}
-
-    {rating !== null && (
-      <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-3.5 py-2 text-sm text-white backdrop-blur-xl">
-
-        <span className="text-[#e3bd7d]">
-          ★
-        </span>
-
-        <span className="font-medium">
-          {rating.toFixed(1)}
-        </span>
-
-        {reviews !== null && (
-          <span className="text-white/45">
-            · {reviews.toLocaleString()}
-          </span>
-        )}
-
-      </div>
-    )}
-
-    {/* BOTTOM CONTENT */}
-
-    <div className="absolute inset-x-0 bottom-0 p-6">
-
-      <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-white/55">
-        VoyageAI selection
-      </p>
-
-      <h3 className="mt-2 line-clamp-2 text-2xl font-semibold tracking-tight text-white">
-        {restaurant.name ||
-          "Recommended restaurant"}
-      </h3>
-
-      {restaurant.type && (
-        <p className="mt-2 line-clamp-1 text-sm text-white/60">
-          {restaurant.type}
-        </p>
-      )}
-
-    </div>
-
-  </div>
-
-
-  {/* =========================================================
-      CONTENT
-  ========================================================= */}
-
-  <div className="p-6 md:p-7">
-
-    {/* RESTAURANT META */}
-
-    <div className="space-y-3">
-
-      {restaurant.type && (
-        <div className="flex items-center gap-2">
-
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f7f5f0] text-xs text-[#927a5a]">
-            ✦
-          </span>
-
-          <div>
-            <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
-              Cuisine
-            </p>
-
-            <p className="mt-0.5 text-sm font-medium text-gray-700">
-              {restaurant.type}
-            </p>
-          </div>
-
-        </div>
-      )}
-
-      {restaurant.address && (
-        <div className="flex items-start gap-2">
-
-          <span className="mt-0.5 text-[#927a5a]">
-            ◦
-          </span>
-
-          <p className="line-clamp-2 text-sm leading-5 text-gray-500">
-            {restaurant.address}
-          </p>
-
-        </div>
-      )}
-
-    </div>
-
-
-    {/* AI REASONING */}
-
-    <div className="mt-7 rounded-[1.25rem] border border-[#927a5a]/15 bg-[#faf8f3] p-5">
-
-      <div className="flex items-start gap-3">
-
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#171717] text-sm text-[#e1bd7c] shadow-sm">
-          ✦
-        </div>
-
-        <div>
-
-          <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#927a5a]">
-            Why VoyageAI chose this
-          </p>
-
-          <p className="mt-2 text-sm leading-6 text-gray-600">
-            {reasoning}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    {/* REVIEW SIGNAL */}
-
-    {reviews !== null && (
-      <div className="mt-6 flex items-center justify-between border-b border-black/[0.06] pb-5">
-
-        <div>
-
-          <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-400">
-            Guest signal
-          </p>
-
-          <p className="mt-1 text-sm font-medium text-gray-700">
-            {reviews.toLocaleString()} reviews
-          </p>
-
-        </div>
-
-        {rating !== null && (
-          <div className="text-right">
-
-            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-400">
-              Rating
-            </p>
-
-            <p className="mt-1 text-sm font-semibold text-gray-800">
-              ★ {rating.toFixed(1)}
-            </p>
-
-          </div>
-        )}
-
-      </div>
-    )}
-
-
-    {/* ACTIONS */}
-
-    <div className="mt-6 flex flex-wrap gap-2">
-
-      {restaurant.website && (
-        <a
-          href={restaurant.website}
-          target="_blank"
-          rel="noreferrer"
-          className="group/button inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-[#927a5a]"
-        >
-          Visit restaurant
-
-          <span className="transition-transform duration-300 group-hover/button:translate-x-1">
-            →
-          </span>
-        </a>
-      )}
-
-      {restaurant.maps_link && (
-        <a
-          href={restaurant.maps_link}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-all duration-300 hover:border-black/20 hover:bg-[#f7f6f3]"
-        >
-          Directions
-
-          <span>
-            ↗
-          </span>
-        </a>
-      )}
-
-      {!restaurant.website &&
-        !restaurant.maps_link && (
-          <span className="rounded-full bg-[#171717]/10 px-5 py-3 text-sm text-gray-500">
-            Details unavailable
-          </span>
-        )}
-
-    </div>
-
-  </div>
-
-</article>
+            <article
+            className="group relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white shadow-[0_20px_70px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_35px_100px_rgba(0,0,0,0.12)]"
+          >
+
+            {/* IMAGE */}
+            <div className="relative h-[280px] overflow-hidden bg-[#e9e7e1]">
+
+              {image ? (
+                <img
+                  src={image}
+                  alt={
+                    restaurant.name ||
+                    "Recommended restaurant"
+                  }
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.08]"
+                  onError={(event) => {
+                    event.currentTarget.style.display =
+                      "none";
+                  }}
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#d8d0c3] via-[#b9a992] to-[#806b4e]">
+                  <div className="text-7xl opacity-80">
+                    🍽️
+                  </div>
+                </div>
+              )}
+
+              {/* IMAGE OVERLAY */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
+
+              {/* BADGE */}
+              <div className="absolute left-5 top-5">
+                <span className="rounded-full border border-white/20 bg-black/35 px-3.5 py-2 text-[9px] font-semibold tracking-[0.22em] text-white backdrop-blur-xl">
+                  {badge}
+                </span>
+              </div>
+
+              {/* RATING */}
+              {rating !== null && (
+                <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-3.5 py-2 text-sm text-white backdrop-blur-xl">
+
+                  <span className="text-[#e3bd7d]">
+                    ★
+                  </span>
+
+                  <span className="font-medium">
+                    {rating.toFixed(1)}
+                  </span>
+
+                  {reviews !== null && (
+                    <span className="text-white/45">
+                      · {reviews.toLocaleString()}
+                    </span>
+                  )}
+
+                </div>
+              )}
+
+              {/* BOTTOM CONTENT */}
+              <div className="absolute inset-x-0 bottom-0 p-6">
+
+                <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-white/55">
+                  VoyageAI selection
+                </p>
+
+                <h3 className="mt-2 line-clamp-2 text-2xl font-semibold tracking-tight text-white">
+                  {restaurant.name ||
+                    "Recommended restaurant"}
+                </h3>
+
+                {restaurant.type && (
+                  <p className="mt-2 line-clamp-1 text-sm text-white/60">
+                    {restaurant.type}
+                  </p>
+                )}
+
+              </div>
+
+            </div>
+
+            {/* CONTENT */}
+            <div className="p-6">
+
+              {/* RESTAURANT META */}
+              <div className="space-y-2">
+
+                {restaurant.type && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span className="text-[#927a5a]">
+                      ✦
+                    </span>
+
+                    <span>
+                      {restaurant.type}
+                    </span>
+                  </div>
+                )}
+
+                {restaurant.address && (
+                  <div className="flex items-start gap-2 text-sm leading-5 text-gray-500">
+                    <span className="mt-0.5 text-[#927a5a]">
+                      ◦
+                    </span>
+
+                    <span className="line-clamp-2">
+                      {restaurant.address}
+                    </span>
+                  </div>
+                )}
+
+              </div>
+
+              {/* AI REASONING */}
+              <div className="mt-6 rounded-2xl border border-[#927a5a]/15 bg-[#f8f6f1] p-5">
+
+                <div className="flex items-center gap-2">
+
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#171717] text-xs text-[#e1bd7c]">
+                    ✦
+                  </span>
+
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#927a5a]">
+                    Why VoyageAI chose this
+                  </p>
+
+                </div>
+
+                <p className="mt-3 text-sm leading-6 text-gray-600">
+                  {reasoning}
+                </p>
+
+              </div>
+
+              {/* ACTIONS */}
+              <div className="mt-6 flex flex-wrap gap-2">
+
+                {restaurant.website && (
+                  <a
+                    href={restaurant.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-[#927a5a]"
+                  >
+                    Visit restaurant
+                    <span>→</span>
+                  </a>
+                )}
+
+                {restaurant.maps_link && (
+                  <a
+                    href={restaurant.maps_link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-all duration-300 hover:border-black/20 hover:bg-[#f7f6f3]"
+                  >
+                    Directions
+                    <span>↗</span>
+                  </a>
+                )}
+
+              </div>
+
+            </div>
+
+            </article>
           </Reveal>
         );
       })}
