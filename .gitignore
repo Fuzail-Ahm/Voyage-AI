@@ -1,3 +1,10 @@
 
 .env
 *.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Generated travel PDFs
+backend/output/*.pdf

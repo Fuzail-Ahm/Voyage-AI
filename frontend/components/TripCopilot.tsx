@@ -4,18 +4,21 @@ import { FormEvent, useState } from "react";
 
 type TripCopilotProps = {
   trip: any;
+  onTripUpdate: (updatedTrip: any) => void;
 };
 
 type CopilotResponse = {
   message: string;
   action: string;
-  changes: string[];
+  changes: any[];
 };
 
 export default function TripCopilot({
   trip,
+  onTripUpdate,
 }: TripCopilotProps) {
   const [message, setMessage] = useState("");
+
   const [messages, setMessages] = useState<
     {
       role: "user" | "assistant";
@@ -32,7 +35,9 @@ export default function TripCopilot({
 
     const trimmed = message.trim();
 
-    if (!trimmed || loading) return;
+    if (!trimmed || loading) {
+      return;
+    }
 
     setMessages((previous) => [
       ...previous,
@@ -69,6 +74,98 @@ export default function TripCopilot({
       const data: CopilotResponse =
         await response.json();
 
+      /*
+       * ----------------------------------------------------
+       * APPLY COPILOT MODIFICATIONS
+       * ----------------------------------------------------
+       */
+
+      let updatedTrip = trip;
+
+      if (
+        data.action === "modify_itinerary" &&
+        Array.isArray(data.changes)
+      ) {
+        updatedTrip = {
+          ...trip,
+          itinerary: Array.isArray(
+            trip.itinerary
+          )
+            ? trip.itinerary.map(
+                (day: any) => {
+                  let updatedDay = {
+                    ...day,
+                  };
+
+                  data.changes.forEach(
+                    (change: any) => {
+                      if (
+                        change?.type ===
+                          "update_day" &&
+                        Number(
+                          change?.day
+                        ) ===
+                          Number(
+                            day?.day
+                          )
+                      ) {
+                        /*
+                         * Apply requested field updates
+                         */
+
+                        if (
+                          change.updates &&
+                          typeof change.updates ===
+                            "object"
+                        ) {
+                          updatedDay = {
+                            ...updatedDay,
+                            ...change.updates,
+                          };
+                        }
+
+                        /*
+                         * Remove requested fields
+                         */
+
+                        if (
+                          Array.isArray(
+                            change.remove_fields
+                          )
+                        ) {
+                          change.remove_fields.forEach(
+                            (field: string) => {
+                              delete updatedDay[
+                                field
+                              ];
+                            }
+                          );
+                        }
+                      }
+                    }
+                  );
+
+                  return updatedDay;
+                }
+              )
+            : trip.itinerary,
+        };
+
+        /*
+         * Send updated trip back to page.tsx
+         */
+
+        if (
+          updatedTrip !== trip
+        ) {
+          onTripUpdate(updatedTrip);
+        }
+      }
+
+      /*
+       * Add assistant response
+       */
+
       setMessages((previous) => [
         ...previous,
         {
@@ -87,7 +184,7 @@ export default function TripCopilot({
         {
           role: "assistant",
           content:
-            "I couldn't reach the VoyageAI Copilot right now. Please try again.",
+            "I couldn't reach VoyageAI Copilot right now. Please try again.",
         },
       ]);
     } finally {
@@ -103,6 +200,7 @@ export default function TripCopilot({
 
   return (
     <section className="mt-24">
+
       <div className="overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#171717] text-white shadow-[0_30px_100px_rgba(0,0,0,0.12)]">
 
         {/* HEADER */}
@@ -112,6 +210,7 @@ export default function TripCopilot({
           <div className="flex items-start justify-between gap-6">
 
             <div>
+
               <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#d4b27b]">
                 VoyageAI · Copilot
               </p>
@@ -121,10 +220,12 @@ export default function TripCopilot({
               </h2>
 
               <p className="mt-3 max-w-xl text-sm leading-6 text-white/45 md:text-base">
-                Ask anything about your current journey.
-                I know your itinerary, preferences,
-                budget and recommendations.
+                Ask anything about your current
+                journey. I know your itinerary,
+                preferences, budget and
+                recommendations.
               </p>
+
             </div>
 
             <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-xl md:flex">
@@ -143,6 +244,7 @@ export default function TripCopilot({
               "What should I do if it rains?",
               "Recommend a romantic dinner",
             ].map((suggestion) => (
+
               <button
                 key={suggestion}
                 type="button"
@@ -156,6 +258,7 @@ export default function TripCopilot({
               >
                 {suggestion}
               </button>
+
             ))}
 
           </div>
@@ -165,10 +268,12 @@ export default function TripCopilot({
         {/* CONVERSATION */}
 
         {messages.length > 0 && (
+
           <div className="max-h-[420px] space-y-4 overflow-y-auto border-t border-white/[0.06] px-7 py-7 md:px-10">
 
             {messages.map(
               (item, index) => (
+
                 <div
                   key={`${item.role}-${index}`}
                   className={
@@ -189,10 +294,12 @@ export default function TripCopilot({
                   </div>
 
                 </div>
+
               )
             )}
 
             {loading && (
+
               <div className="flex justify-start">
 
                 <div className="rounded-2xl rounded-bl-md bg-white/[0.06] px-5 py-4 text-sm text-white/50">
@@ -202,9 +309,11 @@ export default function TripCopilot({
                 </div>
 
               </div>
+
             )}
 
           </div>
+
         )}
 
         {/* INPUT */}
@@ -243,13 +352,14 @@ export default function TripCopilot({
           </div>
 
           <p className="mt-3 px-2 text-[11px] text-white/25">
-            VoyageAI Copilot uses your current trip
-            as context.
+            VoyageAI Copilot uses your current
+            trip as context.
           </p>
 
         </form>
 
       </div>
+
     </section>
   );
 }

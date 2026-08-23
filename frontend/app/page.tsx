@@ -1959,7 +1959,10 @@ ${
         />
       </div>
     </section>
-    <TripCopilot trip={trip} />
+    <TripCopilot
+  trip={trip}
+  onTripUpdate={setTrip}
+/>
   </Reveal>
 )}
 
@@ -2106,6 +2109,7 @@ ${
 
               {/* IMAGE OVERLAY */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
+              <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-[1400ms] group-hover:translate-x-full" />
 
               {/* TOP BADGE */}
               <div className="absolute left-5 top-5">
@@ -2388,173 +2392,256 @@ ${
             delay={index * 120}
             className="h-full"
           >
-            <article
-            className="group relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white shadow-[0_20px_70px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_35px_100px_rgba(0,0,0,0.12)]"
-          >
+           <article
+  className="group relative overflow-hidden rounded-[2rem] border border-black/[0.07] bg-white shadow-[0_20px_70px_rgba(0,0,0,0.06)] transition-all duration-500 hover:-translate-y-2 hover:border-black/[0.12] hover:shadow-[0_35px_100px_rgba(0,0,0,0.12)]"
+>
+  {/* =========================================================
+      IMAGE
+  ========================================================= */}
 
-            {/* IMAGE */}
-            <div className="relative h-[280px] overflow-hidden bg-[#e9e7e1]">
+  <div className="relative h-[330px] overflow-hidden bg-[#e9e7e1]">
 
-              {image ? (
-                <img
-                  src={image}
-                  alt={
-                    restaurant.name ||
-                    "Recommended restaurant"
-                  }
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.08]"
-                  onError={(event) => {
-                    event.currentTarget.style.display =
-                      "none";
-                  }}
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#d8d0c3] via-[#b9a992] to-[#806b4e]">
-                  <div className="text-7xl opacity-80">
-                    🍽️
-                  </div>
-                </div>
-              )}
+    {image ? (
+      <img
+        src={image}
+        alt={
+          restaurant.name ||
+          "Recommended restaurant"
+        }
+        loading="lazy"
+        className="h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.07]"
+        onError={(event) => {
+          event.currentTarget.style.display =
+            "none";
+        }}
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#ded9ce] via-[#c7bca9] to-[#927a5a]">
+        <div className="text-7xl opacity-80">
+          🍽️
+        </div>
+      </div>
+    )}
 
-              {/* IMAGE OVERLAY */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
+    {/* CINEMATIC OVERLAY */}
 
-              {/* BADGE */}
-              <div className="absolute left-5 top-5">
-                <span className="rounded-full border border-white/20 bg-black/35 px-3.5 py-2 text-[9px] font-semibold tracking-[0.22em] text-white backdrop-blur-xl">
-                  {badge}
-                </span>
-              </div>
+    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/5 to-black/10" />
 
-              {/* RATING */}
-              {rating !== null && (
-                <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-3.5 py-2 text-sm text-white backdrop-blur-xl">
+    {/* HOVER LIGHT SWEEP */}
 
-                  <span className="text-[#e3bd7d]">
-                    ★
-                  </span>
+    <div className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-[1400ms] group-hover:translate-x-full" />
 
-                  <span className="font-medium">
-                    {rating.toFixed(1)}
-                  </span>
+    {/* BADGE */}
 
-                  {reviews !== null && (
-                    <span className="text-white/45">
-                      · {reviews.toLocaleString()}
-                    </span>
-                  )}
+    <div className="absolute left-5 top-5">
 
-                </div>
-              )}
+      <span className="rounded-full border border-white/20 bg-black/35 px-3.5 py-2 text-[9px] font-semibold tracking-[0.22em] text-white backdrop-blur-xl">
+        {badge}
+      </span>
 
-              {/* BOTTOM CONTENT */}
-              <div className="absolute inset-x-0 bottom-0 p-6">
+    </div>
 
-                <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-white/55">
-                  VoyageAI selection
-                </p>
+    {/* RATING */}
 
-                <h3 className="mt-2 line-clamp-2 text-2xl font-semibold tracking-tight text-white">
-                  {restaurant.name ||
-                    "Recommended restaurant"}
-                </h3>
+    {rating !== null && (
+      <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full border border-white/15 bg-black/35 px-3.5 py-2 text-sm text-white backdrop-blur-xl">
 
-                {restaurant.type && (
-                  <p className="mt-2 line-clamp-1 text-sm text-white/60">
-                    {restaurant.type}
-                  </p>
-                )}
+        <span className="text-[#e3bd7d]">
+          ★
+        </span>
 
-              </div>
+        <span className="font-medium">
+          {rating.toFixed(1)}
+        </span>
 
-            </div>
+        {reviews !== null && (
+          <span className="text-white/45">
+            · {reviews.toLocaleString()}
+          </span>
+        )}
 
-            {/* CONTENT */}
-            <div className="p-6">
+      </div>
+    )}
 
-              {/* RESTAURANT META */}
-              <div className="space-y-2">
+    {/* BOTTOM CONTENT */}
 
-                {restaurant.type && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <span className="text-[#927a5a]">
-                      ✦
-                    </span>
+    <div className="absolute inset-x-0 bottom-0 p-6">
 
-                    <span>
-                      {restaurant.type}
-                    </span>
-                  </div>
-                )}
+      <p className="text-[9px] font-medium uppercase tracking-[0.3em] text-white/55">
+        VoyageAI selection
+      </p>
 
-                {restaurant.address && (
-                  <div className="flex items-start gap-2 text-sm leading-5 text-gray-500">
-                    <span className="mt-0.5 text-[#927a5a]">
-                      ◦
-                    </span>
+      <h3 className="mt-2 line-clamp-2 text-2xl font-semibold tracking-tight text-white">
+        {restaurant.name ||
+          "Recommended restaurant"}
+      </h3>
 
-                    <span className="line-clamp-2">
-                      {restaurant.address}
-                    </span>
-                  </div>
-                )}
+      {restaurant.type && (
+        <p className="mt-2 line-clamp-1 text-sm text-white/60">
+          {restaurant.type}
+        </p>
+      )}
 
-              </div>
+    </div>
 
-              {/* AI REASONING */}
-              <div className="mt-6 rounded-2xl border border-[#927a5a]/15 bg-[#f8f6f1] p-5">
+  </div>
 
-                <div className="flex items-center gap-2">
 
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#171717] text-xs text-[#e1bd7c]">
-                    ✦
-                  </span>
+  {/* =========================================================
+      CONTENT
+  ========================================================= */}
 
-                  <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#927a5a]">
-                    Why VoyageAI chose this
-                  </p>
+  <div className="p-6 md:p-7">
 
-                </div>
+    {/* RESTAURANT META */}
 
-                <p className="mt-3 text-sm leading-6 text-gray-600">
-                  {reasoning}
-                </p>
+    <div className="space-y-3">
 
-              </div>
+      {restaurant.type && (
+        <div className="flex items-center gap-2">
 
-              {/* ACTIONS */}
-              <div className="mt-6 flex flex-wrap gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f7f5f0] text-xs text-[#927a5a]">
+            ✦
+          </span>
 
-                {restaurant.website && (
-                  <a
-                    href={restaurant.website}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-[#927a5a]"
-                  >
-                    Visit restaurant
-                    <span>→</span>
-                  </a>
-                )}
+          <div>
+            <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-gray-400">
+              Cuisine
+            </p>
 
-                {restaurant.maps_link && (
-                  <a
-                    href={restaurant.maps_link}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-all duration-300 hover:border-black/20 hover:bg-[#f7f6f3]"
-                  >
-                    Directions
-                    <span>↗</span>
-                  </a>
-                )}
+            <p className="mt-0.5 text-sm font-medium text-gray-700">
+              {restaurant.type}
+            </p>
+          </div>
 
-              </div>
+        </div>
+      )}
 
-            </div>
+      {restaurant.address && (
+        <div className="flex items-start gap-2">
 
-            </article>
+          <span className="mt-0.5 text-[#927a5a]">
+            ◦
+          </span>
+
+          <p className="line-clamp-2 text-sm leading-5 text-gray-500">
+            {restaurant.address}
+          </p>
+
+        </div>
+      )}
+
+    </div>
+
+
+    {/* AI REASONING */}
+
+    <div className="mt-7 rounded-[1.25rem] border border-[#927a5a]/15 bg-[#faf8f3] p-5">
+
+      <div className="flex items-start gap-3">
+
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#171717] text-sm text-[#e1bd7c] shadow-sm">
+          ✦
+        </div>
+
+        <div>
+
+          <p className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#927a5a]">
+            Why VoyageAI chose this
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-gray-600">
+            {reasoning}
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    {/* REVIEW SIGNAL */}
+
+    {reviews !== null && (
+      <div className="mt-6 flex items-center justify-between border-b border-black/[0.06] pb-5">
+
+        <div>
+
+          <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-400">
+            Guest signal
+          </p>
+
+          <p className="mt-1 text-sm font-medium text-gray-700">
+            {reviews.toLocaleString()} reviews
+          </p>
+
+        </div>
+
+        {rating !== null && (
+          <div className="text-right">
+
+            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-gray-400">
+              Rating
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-gray-800">
+              ★ {rating.toFixed(1)}
+            </p>
+
+          </div>
+        )}
+
+      </div>
+    )}
+
+
+    {/* ACTIONS */}
+
+    <div className="mt-6 flex flex-wrap gap-2">
+
+      {restaurant.website && (
+        <a
+          href={restaurant.website}
+          target="_blank"
+          rel="noreferrer"
+          className="group/button inline-flex items-center gap-2 rounded-full bg-[#171717] px-5 py-3 text-sm font-medium text-white transition-all duration-300 hover:bg-[#927a5a]"
+        >
+          Visit restaurant
+
+          <span className="transition-transform duration-300 group-hover/button:translate-x-1">
+            →
+          </span>
+        </a>
+      )}
+
+      {restaurant.maps_link && (
+        <a
+          href={restaurant.maps_link}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-5 py-3 text-sm font-medium text-gray-700 transition-all duration-300 hover:border-black/20 hover:bg-[#f7f6f3]"
+        >
+          Directions
+
+          <span>
+            ↗
+          </span>
+        </a>
+      )}
+
+      {!restaurant.website &&
+        !restaurant.maps_link && (
+          <span className="rounded-full bg-[#171717]/10 px-5 py-3 text-sm text-gray-500">
+            Details unavailable
+          </span>
+        )}
+
+    </div>
+
+  </div>
+
+</article>
           </Reveal>
         );
       })}
