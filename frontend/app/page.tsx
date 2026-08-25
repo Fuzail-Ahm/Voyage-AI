@@ -834,17 +834,21 @@ ${
 
       await photoPromise;
     } catch (error) {
-      console.error(
-        "Planning error:",
-        error
-      );
+  console.error(
+    "Planning error:",
+    error
+  );
 
-      alert(
-        "Unable to generate your journey. Check the backend terminal."
-      );
-    } finally {
-      setLoading(false);
-    }
+  setBackendMessage(
+    "We couldn't create your journey right now. Please try again."
+  );
+
+  alert(
+    "Unable to generate your journey. Please try again."
+  );
+} finally {
+  setLoading(false);
+}
   };
 
   /* =======================================================
