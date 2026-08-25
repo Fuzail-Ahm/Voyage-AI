@@ -331,16 +331,12 @@ export default function TravelMap({
                     </p>
                   )}
 
-                  {place.price !==
-                    undefined && (
-                    <p className="mt-1 text-sm text-gray-500">
-                      ₹
-                      {place.price.toLocaleString(
-                        "en-IN"
-                      )}
-                      / night
-                    </p>
-                  )}
+{place.price != null && (
+  <p className="mt-1 text-sm text-gray-500">
+    ₹
+    {Number(place.price).toLocaleString("en-IN")} / night
+  </p>
+)}
 
                   {place.address && (
                     <p className="mt-2 text-xs leading-5 text-gray-500">
