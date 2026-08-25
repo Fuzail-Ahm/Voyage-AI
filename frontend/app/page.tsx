@@ -1417,25 +1417,32 @@ ${
             >
 
               {loading ? (
-                <>
-                  <span className="animate-spin">
-                    ◌
-                  </span>
+  <>
+    <span className="relative flex h-5 w-5 items-center justify-center">
 
-                  {
-                    loadingSteps[
-                      loadingStep
-                    ]
-                  }
-                </>
-              ) : (
-                <>
-                  Plan my journey
-                  <span className="text-lg">
-                    →
-                  </span>
-                </>
-              )}
+      <span className="absolute h-5 w-5 rounded-full border border-white/20" />
+
+      <span className="absolute h-5 w-5 animate-spin rounded-full border border-transparent border-t-[#d4b27b]" />
+
+      <span className="h-1.5 w-1.5 rounded-full bg-[#d4b27b]" />
+
+    </span>
+
+    <span className="transition-all duration-300">
+      {loadingSteps[loadingStep]}
+    </span>
+  </>
+) : (
+  <>
+    <span>
+      Plan my journey
+    </span>
+
+    <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
+      →
+    </span>
+  </>
+)}
 
             </button>
 
