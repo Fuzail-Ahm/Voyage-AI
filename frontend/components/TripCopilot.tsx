@@ -52,8 +52,8 @@ export default function TripCopilot({
 
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/copilot/chat",
-        {
+  `${process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000"}/copilot/chat`,
+  {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

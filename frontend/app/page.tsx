@@ -142,7 +142,9 @@ type TripResult = {
    CONFIG
 ========================================================= */
 
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "http://127.0.0.1:8000";
 
 const UNSPLASH_ACCESS_KEY =
   process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY || "";
@@ -1940,7 +1942,7 @@ ${
                                   </div>
 
                                   <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-gray-300">
-                                    {String(index + 1).padStart(2, "0")} / {String(trip.itinerary.length).padStart(2, "0")}
+                                    {String(index + 1).padStart(2, "0")} / {String(trip.itinerary?.length ?? 0).padStart(2, "0")}
                                   </span>
                                 </div>
 
