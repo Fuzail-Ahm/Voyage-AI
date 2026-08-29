@@ -36,9 +36,10 @@ FRONTEND_URL = os.getenv(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "https://voyage-mc5108d56-aighpr.vercel.app",
-    ],
+    "http://localhost:3000",
+    "https://voyage-ai-ebon.vercel.app",
+    "https://voyage-mc5108d56-aighpr.vercel.app",
+]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
